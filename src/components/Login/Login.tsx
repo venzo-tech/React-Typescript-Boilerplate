@@ -1,10 +1,24 @@
 import { useNavigate } from "react-router-dom";
+import { toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Login = () => {
     const navigate = useNavigate();
+    const notify = () => toast.success('Login Successfull', {
+      position: "top-center",
+      autoClose: 800,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
 
     const handleSubmit = async () => {
         navigate('/dashboard');
+        notify()
     }
     
   return (
