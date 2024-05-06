@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { LazyLoading } from "./components/LazyLoading/Lazyloading";
 import { Login } from "./components/Login/Login";
 import { NotFound } from "./NotFound";
@@ -37,17 +37,15 @@ export const RoutePagesComponent = () => {
         />
         <Route path="*" element={<NotFound />} />
       </Routes> */}
-      <Router>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            {/* <Route path="/register" element={<Register />} /> */}
-            <PrivateRoute isAuthenticated={isAuthenticated} element={<Dashboard />} />
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </Router>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          {/* <Route path="/register" element={<Register />} /> */}
+          {/* <PrivateRoute isAuthenticated={isAuthenticated} element={<Dashboard />} /> */}
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 };
