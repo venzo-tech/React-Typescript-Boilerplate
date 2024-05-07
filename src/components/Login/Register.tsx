@@ -1,36 +1,36 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, Bounce } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import { BeatLoader } from "react-spinners";
+import { Providers } from "./Providers";
+import { authentication } from "../../Firebase/Firebase";
 
 export const Register = () => {
   const navigate = useNavigate();
-  const notify = () =>
-    toast.success("Login Successfull", {
-      position: "top-center",
-      autoClose: 800,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Bounce,
-    });
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = async () => {
-    navigate("/dashboard");
-    notify();
+  // const handleSubmit = async () => {
+  //   navigate("/dashboard");
+  //   notify();
+  // };
+
+  const handleSignUp = async () => {
+    try {
+      const userCredential = await authentication.createUserWithEmailAndPassword(email, password);
+      // User successfully signed up
+      console.log('User created:', userCredential.user);
+      // Handle successful sign-up (e.g., redirect to dashboard)
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
   };
 
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          {/* <img
-            className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
-          /> */}
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Sign up to your account
           </h2>
@@ -39,10 +39,8 @@ export const Register = () => {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleSignUp}
               className="space-y-6"
-              action="/"
-              method="POST"
             >
               <div>
                 <label
@@ -56,6 +54,8 @@ export const Register = () => {
                     id="email"
                     name="email"
                     type="email"
+                    value={email}
+                    onChange={(e: any) => setEmail(e.target.value)}
                     autoComplete="email"
                     required
                     className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -75,36 +75,12 @@ export const Register = () => {
                     id="password"
                     name="password"
                     type="password"
+                    value={password}
+                    onChange={(e: any) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     required
                     className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="ml-3 block text-sm leading-6 text-gray-900"
-                  >
-                    Remember me
-                  </label>
-                </div>
-
-                <div className="text-sm leading-6">
-                  <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Forgot password?
-                  </a>
                 </div>
               </div>
 
@@ -113,7 +89,11 @@ export const Register = () => {
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Sign up
+                  {isLoading ? (
+                    <BeatLoader size={13} color="#fff" />
+                  ) : (
+                    "Sign up"
+                  )}
                 </button>
               </div>
             </form>
