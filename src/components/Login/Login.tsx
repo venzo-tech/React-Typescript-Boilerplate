@@ -1,36 +1,107 @@
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { camelCaseConvertForErrorMessage } from "../../Services/CommonFunctions";
+import { browserLocalPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
+import { authentication } from "../../Firebase/Firebase";
+import { useDispatch } from "react-redux";
+import { setSignInValue } from "../../Redux/Reducers.tsx/SignInUser";
+
+export const storeLoggedUserDetails = async (
+  userObject: any,
+  storeDataDispatch: any,
+) => {
+  const user  = userObject;
+  const tokenResult = await user.getIdTokenResult();
+  const { token, claims: userDetails } = tokenResult;
+  if (userObject.providerId === null && !user.emailVerified) {
+    return toast.error(
+      camelCaseConvertForErrorMessage('please verify your email')
+    );
+  }
+  const { user_id, email } = userDetails;
+  localStorage.setItem("token", token);
+  await storeDataDispatch({ email, uid: user_id,isTokenExpired:false });
+};
+
+export const authErrors: any = {
+  'auth/user-not-found': 'Please sign up',
+  'auth/email-already-exists':
+  'Email Id already exists, Please Sign in to Continue',
+  'auth/wrong-password': 'Invalid password',
+  'auth/too-many-requests': 'Please try again after 30 seconds'
+};
 
 export const Login = () => {
   const navigate = useNavigate();
-  const notify = () =>
-    toast.success("Login Successfull", {
-      position: "top-center",
-      autoClose: 800,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Bounce,
-    });
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const errormessage = searchParams.get("errormessage");
+  const signInButtonRef = React.useRef<any>(null);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  // const notify = () =>
+  //   toast.success("Login Successfull", {
+  //     position: "top-center",
+  //     autoClose: 800,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "dark",
+  //     transition: Bounce,
+  //   });
 
-  const handleSubmit = async () => {
-    navigate("/dashboard");
-    notify();
+  const storeUserData = (data: any) => {
+    dispatch(setSignInValue(data));
   };
+
+  // const handleSubmit = async () => {
+  //   navigate("/dashboard");
+  //   notify();
+  // };
+
+  const handleSubmit = async() => {
+    signInButtonRef.current.disabled = true;
+    if (window.navigator.onLine) {
+      setIsLoading(true);
+      try {
+         const signedResult=await signInWithEmailAndPassword(
+          authentication,
+          email,
+          password
+        );
+        setPersistence(authentication, browserLocalPersistence);
+        
+        await storeLoggedUserDetails(signedResult.user, storeUserData);
+      } catch (error: any) {
+        toast.error(camelCaseConvertForErrorMessage(authErrors[error.code]));
+      }
+      setIsLoading(false);
+    } else {
+      toast.error(
+          camelCaseConvertForErrorMessage(
+              'Please Check your Internet Connection'
+          )
+      );
+    }
+    signInButtonRef.current.disabled = false;
+  }
+
+  React.useEffect(() => {
+    if (errormessage) {
+      toast.error(errormessage)
+      navigate("/login");
+    }
+  },[])
 
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          {/* <img
-            className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
-          /> */}
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Sign in to your account
           </h2>
@@ -56,9 +127,11 @@ export const Login = () => {
                     id="email"
                     name="email"
                     type="email"
+                    value={email}
+                    onChange={(e:any) => setEmail(e.target.value)}
                     autoComplete="email"
                     required
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
@@ -75,9 +148,11 @@ export const Login = () => {
                     id="password"
                     name="password"
                     type="password"
+                    value={password}
+                    onChange={(e:any) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     required
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
