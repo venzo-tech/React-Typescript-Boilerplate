@@ -2,6 +2,7 @@ import React, { useState, Suspense } from "react";
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { LazyLoading } from "./components/LazyLoading/Lazyloading";
 import { Login } from "./components/Login/Login";
+import { Register } from "./components/Login/Register";
 import { NotFound } from "./NotFound";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { Loader } from "./Loader";
@@ -40,8 +41,9 @@ export const RoutePagesComponent = () => {
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
-          {/* <Route path="/register" element={<Register />} /> */}
+          <Route path="/register" element={<Register />} />
           {/* <PrivateRoute isAuthenticated={isAuthenticated} element={<Dashboard />} /> */}
+          {/* {isAuthenticated ? <Route path="/dashboard" element={<Dashboard />} /> : <Navigate to="/login" />} */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
