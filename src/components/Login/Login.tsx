@@ -1,68 +1,23 @@
 import React from "react";
-import {
-  // useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { camelCaseConvertForErrorMessage } from "../../Services/CommonFunctions";
-import {
-  // browserLocalPersistence,
-  // setPersistence,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
 import { authentication } from "../../Firebase/Firebase";
-// import { useDispatch } from "react-redux";
-// import { setSignInValue } from "../../Redux/Reducers.tsx/SignInUser";
 import toast from "react-hot-toast";
 import { BeatLoader } from "react-spinners";
 import { Providers } from "./Providers";
 import { ResetPassword } from "./ResetPassword";
-
-// export const storeLoggedUserDetails = async (
-//   userObject: any,
-//   storeDataDispatch: any,
-// ) => {
-//   const user  = userObject;
-//   const tokenResult = await user.getIdTokenResult();
-//   const { token, claims: userDetails } = tokenResult;
-//   if (userObject.providerId === null && !user.emailVerified) {
-//     return toast.error(
-//       camelCaseConvertForErrorMessage('please verify your email')
-//     );
-//   }
-//   const { user_id, email } = userDetails;
-//   localStorage.setItem("token", token);
-//   await storeDataDispatch({ email, uid: user_id,isTokenExpired:false });
-// };
-
-export const authErrors: any = {
-  "auth/user-not-found": "Please sign up",
-  "auth/email-already-exists":
-    "Email Id already exists, Please Sign in to Continue",
-  "auth/wrong-password": "Invalid password",
-  "auth/too-many-requests": "Please try again after 30 seconds",
-};
+import { Formik } from "../Formik/Formik";
+import { SignIn_Values } from "../Formik/InitialValues";
+import { SignInSchema } from "../Formik/Schema";
 
 export const Login = () => {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const errormessage = searchParams.get("errormessage");
-  const signInButtonRef = React.useRef<any>(null);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [resetPassword, setResetPassword] = React.useState(false);
-
-  // const storeUserData = (data: any) => {
-  //   dispatch(setSignInValue(data));
-  // };
-
-  // const handleSubmit = async () => {
-  //   navigate("/dashboard");
-  //   notify();
-  // };
 
   const providerFunction = async (data: any) => {
     const ProviderResponse = await Providers(data);
@@ -90,6 +45,104 @@ export const Login = () => {
     }
   }, []);
 
+  const FormikProps = {
+    children: ({ values, handleChange, errors }: any) => {
+      return (
+        <div className="space-y-5">
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Email address
+            </label>
+            <div className="mt-2">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={values.email}
+                onChange={handleChange("email")}
+                autoComplete="email"
+                // required
+                className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+              {errors.email && (
+                <p className="text-red-500 absolute -bottom-6 right-0">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Password
+            </label>
+            <div className="mt-2">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={values.password}
+                onChange={handleChange("password")}
+                autoComplete="password"
+                // required
+                className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+              {errors.password && (
+                <p className="text-red-500 absolute -bottom-6 right-0">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-3 block text-sm leading-6 text-gray-900"
+              >
+                Remember me
+              </label>
+            </div>
+
+            <div className="text-sm leading-6">
+              <p
+                onClick={() => setResetPassword(true)}
+                className="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer"
+              >
+                Forgot password?
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              {isLoading ? <BeatLoader size={13} color="#fff" /> : "Sign In"}
+            </button>
+          </div>
+        </div>
+      );
+    },
+    initialValues: SignIn_Values,
+    validationSchema: SignInSchema,
+    onSubmit: handleSignIn,
+  };
+
   return (
     <>
       {resetPassword ? (
@@ -104,89 +157,7 @@ export const Login = () => {
 
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
             <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-              <form onSubmit={handleSignIn} className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Email address
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={email}
-                      onChange={(e: any) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      required
-                      className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Password
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={password}
-                      onChange={(e: any) => setPassword(e.target.value)}
-                      autoComplete="current-password"
-                      required
-                      className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                    />
-                    <label
-                      htmlFor="remember-me"
-                      className="ml-3 block text-sm leading-6 text-gray-900"
-                    >
-                      Remember me
-                    </label>
-                  </div>
-
-                  <div className="text-sm leading-6">
-                    <p
-                      onClick={() => setResetPassword(true)}
-                      className="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer"
-                    >
-                      Forgot password?
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  >
-                    {isLoading ? (
-                      <BeatLoader size={13} color="#fff" />
-                    ) : (
-                      "Sign In"
-                    )}
-                  </button>
-                </div>
-              </form>
-
+              <Formik {...FormikProps} />
               <div>
                 <div className="relative mt-10">
                   <div

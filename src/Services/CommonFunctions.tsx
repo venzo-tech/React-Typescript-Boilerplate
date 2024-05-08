@@ -34,3 +34,11 @@ export const NavigateToSignInWithRouteParams = (response: any) => {
   sessionStorage.setItem("lastExpiredRoute", window.location.pathname+search);
   window.location.href = `${origin}/login?errormessage=${response.data.message}`;
 }
+
+export const authErrors: any = {
+  "auth/user-not-found": "Please sign up",
+  "auth/email-already-exists":
+    "Email Id already exists, Please Sign in to Continue",
+  "auth/wrong-password": "Invalid password",
+  "auth/too-many-requests": "Please try again after 30 seconds",
+};
