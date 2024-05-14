@@ -19,11 +19,6 @@ export const Login = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const { handleGoogleSignIn, handleFacebookSignIn } = Providers();
 
-  // const providerFunction = async (data: any) => {
-  //   const ProviderResponse = await Providers(data);
-  //   console.log(ProviderResponse, "ProviderResponse");
-  // };
-
   const handleSignIn = async (e:any) => {
     e.preventDefault();
     setIsLoading(true)
