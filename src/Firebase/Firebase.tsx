@@ -1,22 +1,20 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import {getStorage} from "firebase/storage";
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC6XJ9TTMi-Q2ea3cAynGr9pG_YZQMheP4",
-  authDomain: "devtraining-2ec83.firebaseapp.com",
-  projectId: "devtraining-2ec83",
-  storageBucket: "devtraining-2ec83.appspot.com",
-  messagingSenderId: "642377465042",
-  appId: "1:642377465042:web:1d406a78a39f30d5a8c10b",
-  measurementId: "G-7W7TK0VXJN"
+  apiKey: "AIzaSyAH9VJp1ZcFuUtPDk9eEGb6deh03c1DIVA",
+  authDomain: "trisekt-deeto.firebaseapp.com",
+  projectId: "trisekt-deeto",
+  storageBucket: "trisekt-deeto.appspot.com",
+  messagingSenderId: "1064923907552",
+  appId: "1:1064923907552:web:cd3e8711baf72bf5d2d785",
+  measurementId: "G-SVCSZPD490"
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-const analytics = getAnalytics(app);
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
-export const storage=getStorage(app);
-
-export const authentication:any  = getAuth(app);
+export { auth, googleProvider, facebookProvider };

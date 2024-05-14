@@ -1,53 +1,58 @@
-import { BarsArrowUpIcon, UsersIcon } from "@heroicons/react/20/solid";
-import { authentication } from "../../Firebase/Firebase";
+import React, { useState } from "react";
+import { auth } from "../../Firebase/Firebase";
 import toast from "react-hot-toast";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
-export const ResetPassword = (email:any) => {
-  const handlePasswordReset = async () => {
-    try { console.log("Enter")
-        if(email!=="") {
-            await authentication.sendPasswordResetEmail(email);
-            console.log("Password reset email sent");
-            // Inform user that a password reset email has been sent
-        } else toast.error("Please enter email")
-    } catch (error) {
-      console.error("Error sending password reset email:", error);
-      // Handle errors appropriately (e.g., display error message to user)
+export const ResetPassword = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleForgotPassword = async (e:any) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent successfully!")
+    } catch (error:any) {
+      console.error("Forgot password failed:", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <label
-        htmlFor="email"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Reset Password
-      </label>
-      <div className="mt-2 flex rounded-md shadow-sm">
-        <div className="relative flex flex-grow items-stretch focus-within:z-10">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <UsersIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+    <div className="flex flex-col space-y-10 w-[30%] p-5">
+      <button type="button" className="bg-blue-600 text-[18px] text-white w-[15%] p-1 px-4 rounded" onClick={()=>navigate('/login')}>Back</button>
+      <div className="space-y-4">
+        <h1 className="text-xl font-bold text-gray-800">Forgot Password</h1>
+        <form onSubmit={handleForgotPassword} className="flex flex-col space-y-2">
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            />
           </div>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            className="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            placeholder="Enter Email"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handlePasswordReset}
-          className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        >
-          <BarsArrowUpIcon
-            className="-ml-0.5 h-5 w-5 text-gray-400"
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full rounded-md py-2 px-3 text-sm font-medium text-center ${
+              isLoading ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            }`}
+          >
+            {isLoading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
       </div>
     </div>
   );
 };
+

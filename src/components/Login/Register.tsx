@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { BeatLoader } from "react-spinners";
 import { Providers } from "./Providers";
-import { authentication } from "../../Firebase/Firebase";
+import { auth } from "../../Firebase/Firebase";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -11,20 +12,32 @@ export const Register = () => {
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // const handleSubmit = async () => {
-  //   navigate("/dashboard");
-  //   notify();
-  // };
-
-  const handleSignUp = async () => {
+  const registerUser = async (e:any) => {
+    e.preventDefault();
+    setIsLoading(true)
     try {
-      const userCredential = await authentication.createUserWithEmailAndPassword(email, password);
-      // User successfully signed up
-      console.log('User created:', userCredential.user);
-      // Handle successful sign-up (e.g., redirect to dashboard)
-    } catch (error) {
-      console.error('Error creating user:', error);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User logged in:', userCredential.user);
+      toast.success("Registration successful!");
+      navigate('/dashboard')
+    } catch (error: any) {
+      let errorMessage = 'Login failed. Please try again.';
+      switch (error.code) {
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'User not found. Please check your email address.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address.';
+          break;
+        default:
+          console.error('Login error:', error.message);
+      }
+      console.error(errorMessage);
     }
+    setIsLoading(false)
   };
 
   return (
@@ -39,7 +52,7 @@ export const Register = () => {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             <form
-              onSubmit={handleSignUp}
+              onSubmit={registerUser}
               className="space-y-6"
             >
               <div>
@@ -51,12 +64,13 @@ export const Register = () => {
                 </label>
                 <div className="mt-2">
                   <input
-                    id="email"
-                    name="email"
+                    // id="email"
+                    // name="email"
                     type="email"
+                    placeholder="Email"
                     value={email}
                     onChange={(e: any) => setEmail(e.target.value)}
-                    autoComplete="email"
+                    // autoComplete="email"
                     required
                     className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -72,12 +86,13 @@ export const Register = () => {
                 </label>
                 <div className="mt-2">
                   <input
-                    id="password"
-                    name="password"
+                    // id="password"
+                    // name="password"
                     type="password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e: any) => setPassword(e.target.value)}
-                    autoComplete="current-password"
+                    // autoComplete="current-password"
                     required
                     className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />

@@ -6,6 +6,7 @@ import { Register } from "./components/Login/Register";
 import { NotFound } from "./NotFound";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { Loader } from "./Loader";
+import { ResetPassword } from "./components/Login/ResetPassword";
 
 // const SignIn = React.lazy(() => import("./components/Login/Login.tsx"));
 // const SignUp = React.lazy(() => import("./components/SignUp"));
@@ -22,6 +23,7 @@ export const RoutePagesComponent = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ResetPassword />} />
           {/* Conditional Route with Navigate wrapped in Fragment */}
           <Route
             path="/dashboard"

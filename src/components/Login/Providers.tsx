@@ -1,34 +1,34 @@
-import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-import { authentication } from '../../Firebase/Firebase';
+import { auth, googleProvider, facebookProvider } from '../../Firebase/Firebase';
+import { signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 // import { useAppDispatch } from '../../main';
 // import { setSignInValue } from '../../Redux/Reducers.tsx/SignInUser';
 // import { storeLoggedUserDetails } from './Login';
 
-export const Providers = (type:string) => {
-    // const dispatch = useAppDispatch();
+export const Providers = () => {
+  const navigate = useNavigate();
 
-    const PROVIDERS:any = {
-        google: GoogleAuthProvider,
-        fb:FacebookAuthProvider
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // User successfully signed in with Google
+      console.log("User signed in with Google:", result.user);
+      navigate('/dashboard'); // Assuming path doesn't require quotes
+    } catch (error: any) {
+      console.error("Google sign-in failed:", error.message);
     }
+  };
 
-    // const storeUserData = (data: any) => {
-    //     dispatch(setSignInValue(data));
-    // }
-
-    const loginFunction = async () => {
-        let provider = new PROVIDERS[type]();
-        try {
-            let result = await signInWithPopup(authentication, provider);
-            console.log(result, "result")
-            // await storeLoggedUserDetails(
-            //     result.user,
-            //     storeUserData,
-            // );
-        } catch (error: any) {
-            console.log(error, "error");
-        }
+  const handleFacebookSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, facebookProvider);
+      // User successfully signed in with Facebook
+      console.log("User signed in with Facebook:", result.user);
+      navigate('/dashboard'); // Assuming path doesn't require quotes
+    } catch (error: any) {
+      console.error("Facebook sign-in failed:", error.message);
     }
+  };
 
-    return loginFunction;
-}
+  return { handleGoogleSignIn, handleFacebookSignIn };
+};
